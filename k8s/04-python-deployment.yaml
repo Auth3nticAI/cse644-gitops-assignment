@@ -38,7 +38,7 @@ spec:
     spec:
       containers:
         - name: python-web
-          image: auth3nticai/cse644-gitops-python:v2
+          image: auth3nticai/cse644-gitops-python:v2-typo-does-not-exist
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8888
