@@ -1,0 +1,25 @@
+# CSE644 Assignment 03, Requirement 2: GitOps Deployment.
+# This Application object is itself the thing that makes Git authoritative:
+# Argo CD reconciles the live `cse644` namespace to whatever is committed
+# under k8s/ in this repo's main branch, on its own polling/webhook cycle,
+# with no human running `kubectl apply` by hand.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cse644-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Auth3nticAI/cse644-gitops-assignment.git
+    targetRevision: main
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cse644
+  syncPolicy:
+    automated:
+      prune: true      # delete cluster objects removed from Git
+      selfHeal: true    # revert any change made directly against the cluster
+    syncOptions:
+      - CreateNamespace=false   # k8s/00-namespace.yaml already declares it

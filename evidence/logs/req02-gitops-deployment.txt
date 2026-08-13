@@ -1,0 +1,53 @@
+=== argocd namespace controller pods ===
+NAME                                                READY   STATUS    RESTARTS   AGE
+argocd-application-controller-0                     1/1     Running   0          7m34s
+argocd-applicationset-controller-6db89bc85d-hbgd4   1/1     Running   0          7m34s
+argocd-dex-server-5c859d8bd9-kp7jv                  1/1     Running   0          7m34s
+argocd-notifications-controller-659d6db5fc-6w7dd    1/1     Running   0          7m34s
+argocd-redis-f8766bdc7-hfgnd                        1/1     Running   0          7m34s
+argocd-repo-server-7b8c487b84-7sbb5                 1/1     Running   0          7m34s
+argocd-server-6799b86d7-99s9b                       1/1     Running   0          7m34s
+
+=== Argo CD Application: cse644-app ===
+Name:               argocd/cse644-app
+Project:            default
+Server:             https://kubernetes.default.svc
+Namespace:          cse644
+URL:                https://localhost:18080/applications/cse644-app
+Source:
+- Repo:             https://github.com/Auth3nticAI/cse644-gitops-assignment.git
+  Target:           main
+  Path:             k8s
+SyncWindow:         Sync Allowed
+Sync Policy:        Automated (Prune)
+Sync Status:        Synced to main (618c3d3)
+Health Status:      Healthy
+
+GROUP              KIND                   NAMESPACE  NAME                    STATUS   HEALTH   HOOK  MESSAGE
+                   Namespace              cse644     cse644                  Running  Synced         namespace/cse644 configured
+                   Secret                 cse644     python-web-secret       Synced                  secret/python-web-secret configured
+                   ConfigMap              cse644     python-web-config       Synced                  configmap/python-web-config configured
+                   PersistentVolumeClaim  cse644     python-web-data         Synced   Healthy        persistentvolumeclaim/python-web-data configured
+                   Service                cse644     python-web-svc          Synced   Healthy        service/python-web-svc configured
+                   Service                cse644     nginx-web-loadbalancer  Synced   Healthy        service/nginx-web-loadbalancer configured
+                   Service                cse644     nginx-web-nodeport      Synced   Healthy        service/nginx-web-nodeport configured
+                   Service                cse644     haproxy-edge-svc        Synced   Healthy        service/haproxy-edge-svc configured
+                   Service                cse644     nginx-web-svc           Synced   Healthy        service/nginx-web-svc configured
+apps               Deployment             cse644     python-web              Synced   Healthy        deployment.apps/python-web configured
+apps               Deployment             cse644     haproxy-edge            Synced   Healthy        deployment.apps/haproxy-edge configured
+apps               Deployment             cse644     nginx-web               Synced   Healthy        deployment.apps/nginx-web configured
+networking.k8s.io  Ingress                cse644     nginx-web-ingress       Synced   Healthy        ingress.networking.k8s.io/nginx-web-ingress configured
+                   Namespace                         cse644                  Synced                  
+
+=== kubectl view of the same Application object ===
+NAME         SYNC STATUS   HEALTH STATUS   REVISION                                   PROJECT
+cse644-app   Synced        Healthy         618c3d35aae3add6df3ae2f1d0da4def0f674cdf   default
+
+=== Application is reachable (via HAProxy edge -> nginx-web, port-forward) ===
+<title>CSE644 &middot; Customized Nginx on Kubernetes</title>
+
+=== python-web app identifies student + assignment (via its own Service) ===
+    "assignment": "03 - GitOps and Application Observability",
+    "environment": "kind-grading",
+    "greeting": "Welcome to the CSE644 Kubernetes grading environment!",
+    "student": "Tray Branch",

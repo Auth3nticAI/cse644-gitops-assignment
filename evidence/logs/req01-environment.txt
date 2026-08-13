@@ -1,0 +1,30 @@
+=== KinD cluster ===
+cse644
+
+NAME                   STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION                      CONTAINER-RUNTIME
+cse644-control-plane   Ready    control-plane   86m   v1.34.0   172.22.0.3    <none>        Debian GNU/Linux 12 (bookworm)   6.18.33.2-microsoft-standard-WSL2   containerd://2.1.3
+cse644-worker          Ready    <none>          85m   v1.34.0   172.22.0.2    <none>        Debian GNU/Linux 12 (bookworm)   6.18.33.2-microsoft-standard-WSL2   containerd://2.1.3
+
+=== cse644 namespace pods ===
+NAME                            READY   STATUS    RESTARTS   AGE    IP            NODE            NOMINATED NODE   READINESS GATES
+haproxy-edge-69546c8b6f-lsllr   1/1     Running   0          80m    10.244.1.8    cse644-worker   <none>           <none>
+nginx-web-6c7bb4d54c-88w9s      1/1     Running   0          82m    10.244.1.5    cse644-worker   <none>           <none>
+nginx-web-6c7bb4d54c-s8pcp      1/1     Running   0          82m    10.244.1.4    cse644-worker   <none>           <none>
+nginx-web-6c7bb4d54c-zk4c5      1/1     Running   0          82m    10.244.1.3    cse644-worker   <none>           <none>
+public-image-demo               1/1     Running   0          84m    10.244.1.2    cse644-worker   <none>           <none>
+python-web-5bf75fb99-v9cld      1/1     Running   0          101s   10.244.1.30   cse644-worker   <none>           <none>
+
+=== Repository remote + branch ===
+origin	https://github.com/Auth3nticAI/cse644-gitops-assignment.git (fetch)
+origin	https://github.com/Auth3nticAI/cse644-gitops-assignment.git (push)
+main
+
+=== Commit history ===
+618c3d3 (HEAD -> main, origin/main) Seed repo from Assignment 02: app source, K8s manifests, KinD config
+
+=== Working tree status (should be clean) ===
+?? argocd/
+?? evidence/
+?? scripts/10-install-argocd.sh
+?? scripts/11-argocd-login.sh
+?? scripts/req01-environment.sh
