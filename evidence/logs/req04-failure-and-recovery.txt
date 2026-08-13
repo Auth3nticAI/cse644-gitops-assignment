@@ -1,0 +1,69 @@
+=== Failure commit ===
+commit b4f28459431d00b1e3e2060696d3520be91a1d69
+Author: Tray Branch <tray.d.branch@gmail.com>
+Date:   Thu Aug 13 10:38:58 2026 -0700
+
+    Requirement 4: introduce a controlled deployment failure
+    
+    Point python-web at a nonexistent image tag
+    (cse644-gitops-python:v2-typo-does-not-exist). Deliberate, reversible -
+    Argo CD will apply it exactly like any other change, and the resulting
+    ImagePullBackOff/ErrImagePull is diagnosed and then recovered by reverting
+    this commit in Git rather than by patching the cluster directly.
+
+ k8s/04-python-deployment.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+=== Diagnosis, evidence 1: Argo CD Application health ===
+Sync Status:        Synced to main (b4f2845)
+Health Status:      Progressing
+(Synced means the live manifest matches the bad commit exactly - Argo CD
+ did its job faithfully. Progressing/Degraded is Kubernetes reporting
+ that the resulting Pod is not actually healthy.)
+
+=== Diagnosis, evidence 2: Kubernetes Pod state ===
+NAME                          READY   STATUS         RESTARTS   AGE
+python-web-6d5977d7f4-mhc54   0/1     ErrImagePull   0          40s
+python-web-7f648fd76f-88xpg   1/1     Running        0          3m5s
+
+=== Diagnosis, evidence 3: Pod events (root cause) ===
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  40s                default-scheduler  Successfully assigned cse644/python-web-6d5977d7f4-mhc54 to cse644-worker
+  Normal   Pulling    27s (x2 over 40s)  kubelet            Pulling image "auth3nticai/cse644-gitops-python:v2-typo-does-not-exist"
+  Warning  Failed     27s (x2 over 39s)  kubelet            Failed to pull image "auth3nticai/cse644-gitops-python:v2-typo-does-not-exist": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/auth3nticai/cse644-gitops-python:v2-typo-does-not-exist": failed to resolve reference "docker.io/auth3nticai/cse644-gitops-python:v2-typo-does-not-exist": docker.io/auth3nticai/cse644-gitops-python:v2-typo-does-not-exist: not found
+  Warning  Failed     27s (x2 over 39s)  kubelet            Error: ErrImagePull
+  Normal   BackOff    11s (x2 over 39s)  kubelet            Back-off pulling image "auth3nticai/cse644-gitops-python:v2-typo-does-not-exist"
+  Warning  Failed     11s (x2 over 39s)  kubelet            Error: ImagePullBackOff
+
+=== Availability during the failure ===
+python-web-svc Endpoints (only the still-Running old Pod should be listed -
+RollingUpdate's default maxUnavailable=0 keeps the old ReplicaSet's Pod in
+service until a replacement passes readiness, so the failed rollout never
+took the app offline):
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME             ENDPOINTS          AGE
+python-web-svc   10.244.1.31:8888   87m
+
+=== Recovery: revert the bad commit in Git (not a live kubectl edit) ===
+[main 7244ee8] Revert "Requirement 4: introduce a controlled deployment failure"
+ Date: Thu Aug 13 10:40:01 2026 -0700
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+7244ee8 Revert "Requirement 4: introduce a controlled deployment failure"
+b4f2845 Requirement 4: introduce a controlled deployment failure
+6af0354 Requirement 3 evidence: Git-driven change + live-drift self-heal
+To https://github.com/Auth3nticAI/cse644-gitops-assignment.git
+   b4f2845..7244ee8  main -> main
+
+=== Waiting for Argo CD to reconcile the revert ===
+Sync Status:        OutOfSync from main (7244ee8)
+Health Status:      Progressing
+ t+5s: Health Status = Healthy
+
+=== Final state ===
+Sync Status:        Synced to main (7244ee8)
+Health Status:      Healthy
+NAME                          READY   STATUS    RESTARTS   AGE
+python-web-7f648fd76f-88xpg   1/1     Running   0          3m15s
+image in use: auth3nticai/cse644-gitops-python:v2
