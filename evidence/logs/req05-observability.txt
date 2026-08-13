@@ -1,0 +1,31 @@
+=== Argo CD: monitoring Application status ===
+Sync Status:        Synced to main (aa69783)
+Health Status:      Healthy
+
+=== Prometheus scrape targets ===
+  prometheus -> up
+  python-web -> up
+
+=== Grafana: provisioned datasource + dashboard ===
+ datasources: [{'name': 'Prometheus', 'type': 'prometheus', 'isDefault': True}]
+ dashboards: [{'title': 'CSE644 - python-web (Assignment 03)', 'uid': 'cse644-python-web'}]
+
+=== Baseline: app_http_requests_total and app_notes_stored, before traffic ===
+ total requests: 316
+ notes stored: 41
+
+=== Generating traffic (40 request cycles = 120 HTTP requests) ===
+Sent 120 requests to http://127.0.0.1:18888
+
+Waiting one scrape interval (12s) for Prometheus to pick it up...
+
+=== After traffic: same queries ===
+ total requests: 442
+ notes stored: 81
+
+=== Request rate by endpoint over the last 2 minutes (proves the traffic shows up as rate, not just a counter bump) ===
+  /readyz -> 0.2 req/s
+  /healthz -> 0.1 req/s
+  /api/info -> 0.7271 req/s
+  / -> 0.4136 req/s
+  /api/notes -> 0.4136 req/s
