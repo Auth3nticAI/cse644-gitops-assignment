@@ -1,0 +1,36 @@
+=== Part A: state after the Git-driven change (commit af4e1e2) ===
+Sync Status:        Synced to main (af4e1e2)
+Health Status:      Healthy
+nginx-web replicas: desired=2 ready=2
+python-web live config (via API, proves the ConfigMap edit reached the running Pod):
+ greeting: Welcome to the CSE644 GitOps and Observability platform!
+ environment: kind-gitops-managed
+
+=== Part B: introducing live drift directly against the cluster ===
+Before drift: nginx-web replicas = 2
+Running: kubectl -n cse644 scale deployment/nginx-web --replicas=5  (bypasses Git entirely)
+deployment.apps/nginx-web scaled
+Immediately after: nginx-web replicas = 2
+
+Forcing Argo CD to notice (hard-refresh; normal polling interval is ~3 min):
+Sync Status:        Synced to main (af4e1e2)
+Health Status:      Healthy
+
+Waiting for automated selfHeal to revert the drift...
+ t+3s: nginx-web replicas = 2
+ -> back to the Git-declared value (2). Argo CD selfHeal reverted the drift.
+
+=== Final state ===
+Sync Status:        Synced to main (af4e1e2)
+Health Status:      Healthy
+nginx-web replicas: desired=2 ready=2
+
+=== Argo CD's own record of the revert (application controller events) ===
+87s         Normal   ResourceUpdated      application/cse644-app   Updated health status: Healthy -> Progressing
+80s         Normal   ResourceUpdated      application/cse644-app   Updated health status: Progressing -> Healthy
+6s          Normal   OperationStarted     application/cse644-app   Initiated automated sync to 'af4e1e24cf695865ba88a338e7b263731c9c78ed'
+6s          Normal   ResourceUpdated      application/cse644-app   Updated sync status: Synced -> OutOfSync
+6s          Normal   ResourceUpdated      application/cse644-app   Updated health status: Healthy -> Progressing
+6s          Normal   OperationCompleted   application/cse644-app   Partial sync operation to af4e1e24cf695865ba88a338e7b263731c9c78ed succeeded
+6s          Normal   ResourceUpdated      application/cse644-app   Updated sync status: OutOfSync -> Synced
+6s          Normal   ResourceUpdated      application/cse644-app   Updated health status: Progressing -> Healthy
