@@ -1,0 +1,7 @@
+# CSE644 Assignment 03, Requirement 5: monitoring namespace, separate from
+# the application namespace (cse644) so cleanup is a single `kubectl delete
+# namespace monitoring` with no risk to the application.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring

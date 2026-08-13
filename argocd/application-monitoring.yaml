@@ -1,0 +1,26 @@
+# CSE644 Assignment 03, Requirement 5: a second Application, separate from
+# cse644-app, so the application platform and the monitoring platform sync
+# and prune independently - a broken monitoring change can never affect the
+# app, and vice versa.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cse644-monitoring
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Auth3nticAI/cse644-gitops-assignment.git
+    targetRevision: main
+    path: monitoring
+    directory:
+      recurse: true   # manifests live under monitoring/prometheus/ and monitoring/grafana/
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false   # monitoring/prometheus/00-namespace.yaml declares it

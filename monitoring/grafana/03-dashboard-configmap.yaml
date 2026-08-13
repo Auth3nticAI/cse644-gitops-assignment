@@ -1,0 +1,93 @@
+# CSE644 Assignment 03, Requirement 5: the dashboard itself, provisioned as
+# a ConfigMap file rather than clicked together in the UI - it's GitOps
+# state like everything else in this repo. Panels are the ones actually
+# useful for evaluating python-web's behavior: request rate and p95 latency
+# by endpoint (is the app busy, is it slow), status-code breakdown (is it
+# erroring), and app_notes_stored (the one business-specific gauge - proves
+# the metric reflects real app state, not just HTTP traffic).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-cse644
+  namespace: monitoring
+data:
+  python-web.json: |
+    {
+      "uid": "cse644-python-web",
+      "title": "CSE644 - python-web (Assignment 03)",
+      "timezone": "utc",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-15m", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Request rate by endpoint (req/s)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(rate(app_http_requests_total[1m])) by (endpoint)",
+              "legendFormat": "{{endpoint}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "p95 request latency by endpoint",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(app_http_request_duration_seconds_bucket[5m])) by (le, endpoint))",
+              "legendFormat": "{{endpoint}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Notes stored (business metric)",
+          "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 8, "w": 6, "x": 0, "y": 8 },
+          "targets": [
+            { "expr": "app_notes_stored", "refId": "A" }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Requests by HTTP status",
+          "type": "piechart",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 8, "w": 6, "x": 6, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(app_http_requests_total) by (status)",
+              "legendFormat": "{{status}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "python-web process RSS memory",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+          "targets": [
+            {
+              "expr": "process_resident_memory_bytes{job=\"python-web\"}",
+              "legendFormat": "RSS",
+              "refId": "A"
+            }
+          ]
+        }
+      ]
+    }
