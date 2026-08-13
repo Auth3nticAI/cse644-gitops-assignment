@@ -1,11 +1,12 @@
-# CSE644 Assignment 02, Requirement 6: non-secret application configuration.
-# Changing these values and re-rolling the Deployment (no image rebuild)
-# changes the greeting/environment label shown on the page and in /api/info.
+# Carried over from Assignment 02 (Requirement 6: non-secret application
+# configuration). Assignment 03, Requirement 3 (Git-driven change): the
+# values below were edited here, committed, and pushed - Argo CD picked up
+# the diff and rolled the Deployment with no `kubectl` command involved.
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: python-web-config
   namespace: cse644
 data:
-  APP_GREETING: "Welcome to the CSE644 Kubernetes grading environment!"
-  APP_ENVIRONMENT: "kind-grading"
+  APP_GREETING: "Welcome to the CSE644 GitOps and Observability platform!"
+  APP_ENVIRONMENT: "kind-gitops-managed"

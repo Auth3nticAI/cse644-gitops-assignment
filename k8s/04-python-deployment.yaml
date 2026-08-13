@@ -26,6 +26,15 @@ spec:
       labels:
         app: python-web
         tier: api
+      annotations:
+        # envFrom sources are read once at container start - editing the
+        # ConfigMap alone does NOT restart existing Pods, so this repo has
+        # no built-in config-reload mechanism (no Kustomize configMapGenerator
+        # hash, no Reloader controller - deliberately kept out of scope for a
+        # small local cluster). Instead, config-affecting commits bump this
+        # annotation by hand, which changes the Pod template and gives Argo
+        # CD/the ReplicaSet controller a real rollout to perform.
+        config-generation: "v2-gitops-managed"
     spec:
       containers:
         - name: python-web

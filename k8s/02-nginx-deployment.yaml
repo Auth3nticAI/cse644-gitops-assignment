@@ -8,7 +8,10 @@ metadata:
     app: nginx-web
     tier: web
 spec:
-  replicas: 3
+  # Assignment 03, Requirement 3 (Git-driven change): reduced from 3 to 2 -
+  # right-sized for a small local demo cluster, and a clean, observable
+  # deployment-shape change for Argo CD to reconcile.
+  replicas: 2
   selector:
     matchLabels:
       app: nginx-web
