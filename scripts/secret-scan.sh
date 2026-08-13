@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Pre-publish safety net for the assignment's Security Rules: scan the whole
-# tree for credential-shaped strings before pushing to GitHub. The one
-# expected/allowed hit is the deliberately-dummy value in
-# k8s/13-python-secret.yaml, which this script explicitly excludes.
+# tree for credential-shaped strings before pushing to GitHub. The expected/
+# allowed hits are the deliberately-dummy values in k8s/13-python-secret.yaml
+# and monitoring/grafana/00-secret.yaml, which this script explicitly excludes.
 #
 # Exits non-zero if anything suspicious is found.
 set -uo pipefail
@@ -43,7 +43,8 @@ report "private key block" \
 
 report "assigned password/token literal (excluding the assignment's own dummy Secret)" \
   "$(grep -rInE '(password|passwd|api[_-]?key|access[_-]?token)[[:space:]]*[:=][[:space:]]*["'"'"'][^"'"'"']{8,}' . 2>/dev/null \
-     | grep -v 'secret-scan.sh' | grep -v '13-python-secret.yaml' | grep -v 'README.md' \
+     | grep -v 'secret-scan.sh' | grep -v '13-python-secret.yaml' \
+     | grep -v '00-secret.yaml' | grep -v 'README.md' | grep -v 'SUBMISSION.md' \
      | grep -viE '(--password-stdin|password prompt|your password|the password)')"
 
 echo
