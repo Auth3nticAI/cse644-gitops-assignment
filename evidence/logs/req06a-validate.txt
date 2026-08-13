@@ -1,0 +1,29 @@
+=== Both Argo CD Applications: Synced + Healthy ===
+NAME                      CLUSTER                         NAMESPACE   PROJECT  STATUS  HEALTH   SYNCPOLICY  CONDITIONS  REPO                                                         PATH        TARGET
+argocd/cse644-app         https://kubernetes.default.svc  cse644      default  Synced  Healthy  Auto-Prune  <none>      https://github.com/Auth3nticAI/cse644-gitops-assignment.git  k8s         main
+argocd/cse644-monitoring  https://kubernetes.default.svc  monitoring  default  Synced  Healthy  Auto-Prune  <none>      https://github.com/Auth3nticAI/cse644-gitops-assignment.git  monitoring  main
+
+=== Application reachable and identifiable ===
+ student: Tray Branch | assignment: 03 - GitOps and Application Observability | greeting: Welcome to the CSE644 GitOps and Observability platform!
+
+=== Monitoring: scrape target healthy ===
+ python-web scrape up = 1
+
+=== Dashboard still provisioned in Grafana ===
+ datasources: [{'name': 'Prometheus', 'type': 'prometheus', 'isDefault': True}]
+ dashboards: [{'title': 'CSE644 - python-web (Assignment 03)', 'uid': 'cse644-python-web'}]
+
+=== Repository: everything is committed (no drift between disk and Git) ===
+?? evidence/logs/req06a-validate.txt
+?? scripts/req06-validate-and-cleanup.sh
+?? scripts/req06a-validate.sh
+?? scripts/req06b-cleanup.sh
+48c54a3 Requirement 5 evidence: Prometheus collection, Grafana viz, generated traffic
+aa69783 Requirement 5: lightweight Prometheus + Grafana, GitOps-managed
+f0f5012 Requirement 4 evidence: controlled failure, diagnosis, Git-based recovery
+7244ee8 Revert "Requirement 4: introduce a controlled deployment failure"
+b4f2845 Requirement 4: introduce a controlled deployment failure
+6af0354 Requirement 3 evidence: Git-driven change + live-drift self-heal
+af4e1e2 Requirement 3: Git-driven change - scale nginx-web, update greeting
+574431b Requirement 2: deploy the application through Argo CD
+618c3d3 Seed repo from Assignment 02: app source, K8s manifests, KinD config
