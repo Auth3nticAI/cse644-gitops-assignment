@@ -1,0 +1,61 @@
+# Carried over from Assignment 02 (Requirement 2: port-8888 app,
+# Requirement 5: persistent storage, Requirement 6: ConfigMap/Secret/
+# readiness). For Assignment 03 this Deployment is Argo CD-managed and the
+# image was rebuilt as v2 to add the /metrics endpoint.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-web
+  namespace: cse644
+  labels:
+    app: python-web
+    tier: api
+spec:
+  # 1 replica, not the 3 used for nginx-web: the PVC below is ReadWriteOnce
+  # and backed by KinD's default local-path StorageClass, which provisions a
+  # hostPath directory on a single node. A second replica could only be
+  # scheduled on that same node, and Requirement 5 is specifically about one
+  # workload being replaced and its data surviving - not concurrent replicas
+  # sharing one local volume.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-web
+  template:
+    metadata:
+      labels:
+        app: python-web
+        tier: api
+    spec:
+      containers:
+        - name: python-web
+          image: auth3nticai/cse644-gitops-python:v2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8888
+              name: http
+          envFrom:
+            - configMapRef:
+                name: python-web-config
+            - secretRef:
+                name: python-web-secret
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: python-web-data

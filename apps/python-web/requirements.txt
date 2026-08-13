@@ -1,0 +1,4 @@
+# Compatible-release pins: allow patch/minor updates, block breaking majors.
+Flask~=3.1
+gunicorn~=23.0
+prometheus-client~=0.21

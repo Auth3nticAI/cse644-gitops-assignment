@@ -1,0 +1,9 @@
+# Application namespace, managed by Argo CD like every other object in
+# this directory. Carried over from Assignment 02 (was combined with a
+# one-off busybox demo Pod there for Requirement 1); that demo Pod isn't
+# part of the running application, so it was dropped here rather than kept
+# under GitOps management for Assignment 03.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cse644
